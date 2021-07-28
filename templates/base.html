@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<title>{% block title %} {% endblock %}</title>
+		<link href="{{url_for('static', filename='css/bootstrap.css')}}" type="text/css" rel="stylesheet" />
+		<meta charset="utf-8">
+    		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	</head>
+
+	<body>
+		<header>
+			<nav class="navbar navbar-light bg-light">
+				<a class="navbar-brand" href="/home">
+					<h1> My bitcoin site </h1>
+				</a>
+				<h5> something </h5>
+			</nav>
+		</header>
+
+		<main role="main" class="container">
+			{% block body %}
+			{% endblock %}
+		</main>
+	</body>
+</html>
