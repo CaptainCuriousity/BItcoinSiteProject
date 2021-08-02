@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %} Login  {% endblock %}
+
+{% block body %}
+<form method="post" action="">
+	{{ form.email.label() }} <br />
+	{{ form.email(class="form-control") }} <br />
+
+	{{ form.password.label() }} <br />
+	{{ form.password(class="form-control") }} <br />
+
+	{{ form.submit(class="btn btn-primary") }} <br />
+</form>
+{% endblock %}
