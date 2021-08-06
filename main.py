@@ -1,31 +1,28 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, PasswordField
-from wtforms.validators import DataRequired
 from hashlib import sha1
-# I need to make databases here
+from data import db_session
+from data.users import User
+from forms.login import LoginForm
+from forms.registration import RegistrationForm
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "yan_dushkin_secret_key"
-
-
-class RegistrationForm(FlaskForm):
-    email = StringField("Login/Email", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    password_repeated = PasswordField("Repeat password", validators=[DataRequired()])
-    submit = SubmitField("Submit")
-
-
-class LoginForm(FlaskForm):
-    email = StringField("Login/Email", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    submit = SubmitField("Submit")
 
 
 @app.route("/")
 @app.route("/home")
 def index():
     return render_template("index.html")
+
+
+@app.errorhandler(404)
+def not_found():
+    return render_template("404.html")
+
+
+@app.errorhandler(401)
+def authentification_needed():
+    return redirect("/login")
 
 
 @app.route("/register", methods=["POST", "GET"])
@@ -41,7 +38,19 @@ def register():
 
         if password != repeated_password:
             return "You didn't enter the same password!"
-        # here i must add user's data to database
+        
+        db_session.global_init("db/database.db")
+        session = db_session.create_session()
+
+        user = User()
+        user.email = email
+        user.hashed_password = sha1(password.encode()).hexdigest()
+
+
+        #emails = cursor.execute("FROM users SELECT email")
+        
+        #session.add(user)
+        #session.commit()
 
         return redirect("/success")
 
@@ -59,41 +68,23 @@ def login():
     else:
         email = request.form["email"]
         password = request.form["password"]
-        # here i have to check data
         password_hash = sha1(password.encode()).hexdigest()
 
+        return redirect("/")
 
-        return redirect("/success")
+@app.route("/create_article", methods=["POST", "GET"])
+def create_publication():
+    if request.method == "GET":
+        form = ArticleForm()
+        return render_template("create_article.html", form=form)
+    else:
+        title = request.form["title"]
+        short_text = request.form["text"]
+        link = request.form["link"]
 
-
-@app.route("/cryptos/bitcoin")
-def bitcoin():
-    return render_template("bitcoin.html")
-
-
-@app.route("/cryptos/dash")
-def dash():
-    return render_template("dash.html")
-
-@app.route("/cryptos/monero")
-def monero():
-    return render_template("monero.html")
-
-
-@app.route("/algorithms/pow")
-def pow():
-    return render_template("pow.html")
-
-
-@app.route("/algorithms/pos")
-def pos():
-    return render_template("pos.html")
-
-
-@app.route("/transactions")
-def transactions():
-    return render_template("transactions.html")
+        return redirect("/")
 
 
 if __name__ == "__main__":
     app.run(debug=True)
+
